@@ -8,11 +8,19 @@ We evaluate data selection methods on a range of tuning tasks.
 
 ```bash
 # Create the 'selection' conda environment
-conda env create -n conda.yaml
+conda env create -f conda.yaml
 conda activate selection
+
+
+
+# If you want to install additional dependencies add dependencies in conda.yaml and run:
+conda env update --file conda.yaml --prune
+
+
 
 # Now set the HF_TOKEN environment variable in your conda environment
 conda env config vars set HF_TOKEN=<enter token here>
+
 ```
 
 Follow the instructions on the official [`meta-llama`](https://huggingface.co/meta-llama) repository to ensure you have access to the official Llama model weights. Once you have confirmed access, you can run the following command to download the weights to your local machine. This will also download the tokenizer model and a responsible use guide.
@@ -39,7 +47,8 @@ torchtune supports the following models:
 We recommend getting started with the small [Llama3.2](https://www.llama.com/docs/model-cards-and-prompt-formats/llama3_2) models.
 
 ```bash
-tune download meta-llama/Llama-3.2-1B-Instruct --ignore-patterns "original/consolidated.00.pth"
+# Hardcoded model path name until a dynamic model cache path can be implemented.
+tune download meta-llama/Llama-3.2-1B-Instruct --ignore-patterns "original/consolidated.00.pth" --output-dir ./model_cache/downloaded_models/Llama-3.2-1B-Instruct
 ```
 
 &nbsp;
@@ -80,3 +89,27 @@ A full list of evaluation tasks can be found here: [https://github.com/EleutherA
 Additionally, a full list of datasets to train on can be found here: [https://pytorch.org/torchtune/0.2/api_ref_datasets.html#datasets](https://pytorch.org/torchtune/0.2/api_ref_datasets.html#datasets).
 
 Further torchtune examples: [https://github.com/pytorch/torchtune/blob/main/docs/source/tutorials/llama3.rst](https://github.com/pytorch/torchtune/blob/main/docs/source/tutorials/llama3.rst)
+
+
+
+### Infering Models 
+
+Begin by createing a custom generation config, either by running the following 
+or creating your own: 
+
+``` bash
+tune cp generation ./custom_generation_config.yaml 
+
+``` 
+
+
+To infer the model by changeing the associated "user" field value and running:
+```bash 
+tune run generate --config ./custom_generation_config.yam
+```
+
+
+To infer the model using torch tune cli run the following:
+```bash 
+tune run generate --config ./custom_generation_config.yaml prompt.user=<Your Prompt Here> 
+```
